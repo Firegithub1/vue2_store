@@ -1,5 +1,5 @@
 {
-  "name": "login2",
+  "name": "vue2_store",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "core-js": "^3.8.3",
-    "element-ui": "^2.15.8",
+    "element-ui": "^2.13.0",
     "less-loader": "^11.0.0",
     "nanoid": "^4.0.0",
     "vue": "^2.6.14",
