@@ -1,29 +1,12 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
+import user from "./modules/user";
+import shoppingCart from "./modules/shoppingCart";
 Vue.use(Vuex);
 
-const user = {
-  namespaced:true,
-  actions: {
-    add(content, value) {
-      console.log("add Action!");
-      content.commit("ADD", value);
-    },
-  },
-  mutations: {
-    ADD(state, value) {
-      state.userList.unshift(value);
-    },
-  },
-  state: {
-    userList: [
-      { name: "admin", id: "admin01", pwd: "admin", isAuth: 666 },
-      { name: "张三", id: "user001", pwd: "123456" },
-    ],
-  },
-  getters: {},
-};
 export default new Vuex.Store({
-  modules: { user },
+  strict: true,
+  // 在严格模式下，无论何时发生了状态变更且不是由 mutation 函数引起的，将会抛出错误。这能保证所有的状态变更都能被调试工具跟踪到。
+  modules: { user, shoppingCart },
 });

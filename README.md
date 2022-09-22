@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# login2
+# vue2_store
 
 ## Project setup
 ```
@@ -16,8 +15,4 @@ npm run serve
 npm run build
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-=======
-# vue2_store
->>>>>>> f7c49b6162211a3bca7b045190b8811920fddc6b
+

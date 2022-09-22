@@ -1,53 +1,90 @@
 import Vue from "vue";
-import VueRouter from "vue-router";
-import HomeView from "../views/HomeView.vue";
-import Login from "../views/MyLogin.vue";
-import HelloWorld from "@/components/HelloWorld";
-import Register from "@/views/Register";
+import Router from "vue-router";
 
-Vue.use(VueRouter);
+Vue.use(Router);
 
 const routes = [
   {
     path: "/",
-    name: "hello",
-    component: HelloWorld,
+    name: "Home",
+    component: () => import("../views/Home.vue"),
   },
   {
-    path: "/login",
-    name: "login",
-    component: Login,
+    path: "/error",
+    name: "Error",
+    component: () => import("../components/Error.vue"),
   },
   {
-    path: "/register",
-    name: "register",
-    component: Register,
+    path: "/goods",
+    name: "Goods",
+    component: () => import("../views/Goods.vue"),
   },
   {
-    path: "/forget",
-    name: "forget",
+    path: "/about",
+    name: "About",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "about" */ "../views/MyMenu.vue"),
+      import(/* webpackChunkName: "about" */ "../views/About.vue"),
   },
-
   {
-    name: "home",
-    path: "/home",
-    component: HomeView,
+    path: "/goods/details",
+    name: "Details",
+    component: () => import("../views/Details.vue"),
+  },
+  {
+    path: "/shoppingCart",
+    name: "ShoppingCart",
+    component: () => import("../views/ShoppingCart.vue"),
     meta: {
-      title: "MyHomeView",
+      requireAuth: true, // 需要验证登录状态
+    },
+  },
+  {
+    path: "/collect",
+    name: "Collect",
+    component: () => import("../views/Collect.vue"),
+    meta: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: "/order",
+    name: "Order",
+    component: () => import("../views/Order.vue"),
+    meta: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: "/confirmOrder",
+    name: "ConfirmOrder",
+    component: () => import("../views/ConfirmOrder.vue"),
+    meta: {
+      requireAuth: true,
     },
   },
 ];
 
-const router = new VueRouter({
+const router = new Router({
   routes,
 });
+
+// 由于vue-router在3.1之后把$router.push()方法改为Promise,所以假如没有回调函数，错误信息就会交给全局的路由错误处理，
+// vue-router先报了一个Uncaught(in promise)的错误(因为push没加回调)，然后再点击路由的时候才会触发NavigationDuplicated的错误（路由出现
+// 的错误，全局错误处理打印了出来）
+// 禁止全局路由错误处理打印
+const originalPush = Router.prototype.push;
+Router.prototype.push = function push(location, onResolve, onReject) {
+  if (onResolve || onReject) {
+    return originalPush.call(this, location, onResolve, onReject);
+  }
+  return originalPush.call(this, location).catch((err) => err);
+};
+
 router.afterEach((to, from) => {
-  document.title = to.meta.title || "nbclass";
+  document.title = to.meta.title || "Vue-Store";
 });
 
 export default router;

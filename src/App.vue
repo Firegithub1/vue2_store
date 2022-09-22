@@ -1,14 +1,215 @@
 <template>
-  <div>
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/forget">forget</router-link> |
-      <router-link to="/login">Login</router-link> ||
-      <router-link to="/hello">test</router-link>
-    </nav>
-    <router-view />
+  <div id="app" name="app">
+    <el-comtainer>
+      <!-- 顶部导航栏 -->
+      <div class="topbar">
+        <div class="nav">
+          <ul>
+            <li v-if="!this.$store.getters.getUser">
+              <el-button type="text" @click="login">登录</el-button>
+              <span class="sep">|</span>
+              <el-button type="text" @click="register = true">注册</el-button>
+            :false,//是否显示注册组件
+            visible:false //是否退出登录</li>
+            <li v-else>
+              欢迎
+              <el-popover placement="top" width="180" v-model="visible">
+                <p>确定退出登录吗？</p>
+                <div style="text-align: right; margin: 10px 0 0">
+                  <el-button size="min" type="text" @click="visible = false"
+                    >取消</el-button
+                  >
+                  <el-button type="primary" size="mini" @click="logout"
+                    >确定</el-button
+                  >
+                </div>
+                <el-button type="text" slot="reference">{{
+                  this.$store.getters.getUser.userName
+                }}</el-button>
+              </el-popover>
+            </li>
+            <li>
+              <router-link to="/order">我的订单</router-link>
+            </li>
+            <li>
+              <router-link to="/collect">我的收藏</router-link>
+            </li>
+            <li :class="getNum > 0 ? 'shopCart-full' : 'shopCart'">
+              <router-link to="/shoppingCart">
+                <i class="el-icon-shopping-cart-full"></i>购物车
+                <span class="num">{{ getNum }}</span>
+              </router-link>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!-- 顶部导航栏END -->
+      <el-header>
+        <el-menu
+          :default-active="activeIndex"
+          class="el-menu-demo"
+          mode="horizontal"
+          active-text-color="#409eff"
+          router
+        >
+          <div class="logo">
+            <router-link to="/">
+              <img src="./assets/imgs/logo.png" alt
+            /></router-link>
+          </div>
+          <el-menu-item index="/">首页</el-menu-item>
+          <el-menu-item index="/goods">全部商品</el-menu-item>
+          <el-menu-item index="/about">关于我们</el-menu-item>
+
+          <div class="so">
+            <el-input placeholder="请输入搜索内容" v-model="search">
+              <el-button
+                slot="append"
+                icon="el-icon-search"
+                @click="searchClick"
+              ></el-button>
+            </el-input>
+          </div>
+        </el-menu>
+      </el-header>
+      <!-- 顶部容器END -->
+
+      <!-- 登录模块 -->
+      <MyLogin></MyLogin>
+
+      <!-- 注册模块 -->
+      <MyRegi:false, :register="register" @fromchild="isRegister"></MyRegi:false,//是否显示注册组件
+      visibles:false //是否退出登录:false,//是否显示注册组件
+      visibleter:false //是否退出登录>
+
+      <!-- 主要区域容器 -->
+      <el-main>
+        <keep-alive>
+          <router-link></router-link>
+        </keep-alive>
+      </el-main>
+      <!-- 主要区域容器END -->
+
+      <!-- 底栏容器 -->
+      <el-footer>
+        <div class="footer">
+          <div class="ng-promise-box">
+            <div class="ng-promise">
+              <p class="text">
+                <a href="javascript:;" class="icon1">7天无理由退货</a>
+                <a href="javascript:;" class="icon2">满99元全场包邮</a>
+                <a href="javascript:;" class="icon3" style="margin-right: 0">
+                  100%品质保证</a
+                >
+              </p>
+            </div>
+          </div>
+          <div class="github">
+            <a href="https://github.com/Firegithub1/vue2_store.git" target="_blank">
+            <div class="github-but"></div>
+            </a>
+          </div>
+          <div class="mod_help">
+            <p>
+              <router-link to="/">首页</router-link>
+              <span>|</span>
+              <router-link to="/goods">全部商品</router-link>
+              <span>|</span>
+              <router-link to="/about">关于我们</router-link>
+            </p>
+            <p>商城版权所有 &copy;2012-2022</p>
+          </div>
+        </div>
+      </el-footer>
+      <!-- 底栏容器END -->
+    </el-comtainer>
   </div>
 </template>
+
+<script>
+import { mapActions, mapGetters } from "vuex";
+export default {
+  beforeUpdate() {
+    this.activeIndex = this.$route.path;
+  },
+  data() {
+    return {
+      activeIndex: "", //头部导航栏选中的标签
+      search: "", //搜索条件
+      register: false, //是否显示注册组件
+      visible: false, //是否退出登录
+    };
+  },
+  created() {
+    // 获取浏览器localStorage,判断用户是否已经登录
+    if (localStorage.getItem("user")) {
+      // 如果已经登录，设置vuex登录状态
+      this.setUser(JSON.parse(localStorage.getItem("user")));
+    }
+    // ....
+  },
+  computed: {
+    ...mapGetters(["getUser", "getNum"]),
+  },
+  watch: {
+    // 获取vuex的登录状态
+    getUser: function (val) {
+      if (val === "") {
+        // 用户没有登录
+        this.setShoppingCart([]);
+      } else {
+        // 用户已经登录，获取该用户的购物车信息
+        this.$axios
+          .post("/api/user/shoppingCart/getShoppingCart", {
+            user_id: val.user_id,
+          })
+          .then((res) => {
+            if (red.data.code === "001") {
+              // 001为成功，更新vuex购物车状态
+              this.setShoppingCart(res.data.shoppingCartData);
+            } else {
+              // 提示失败信息
+              this.notifyError(res.data.msg);
+            }
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+    },
+  },
+  methods: {
+    ...mapActions(["setUser", "setShowLogin", "setShoppingCart"]),
+    login() {
+      // 点击登录按钮，通过更改vuex的showLogin值显示登录组件
+      this.setShowLogin(true);
+    },
+    // 退出登录
+    logout() {
+      this.visible = false;
+      // 清空本地登录信息
+      localStorage.setItem("user", "");
+      // 清空vuex登录信息
+      this.setUser("");
+      this.notifySucceed("成功退出登录");
+    },
+    // 接收注册子组件传过来的数据
+    isRegister(val) {
+      this.register = val;
+    },
+    // 点击搜索按钮
+    searchClick() {
+      if (this.search != "") {
+        // 跳转到全部商品页面，并传递搜索条件
+        this.$router.push({
+          path: "/goods",
+          query: { search: this.search },
+        });
+      }
+    },
+  },
+};
+</script>
 
 <style>
 /* 全局css */
