@@ -23,8 +23,8 @@ export default {
       //购物车商品总数量
       let totalNum = 0;
       for (let i = 0; i < state.shoppingCart.length; i++) {
-        const tmp = state.shoppingCart[i];
-        totalNum += tmp.num;
+        const temp = state.shoppingCart[i];
+        totalNum += temp.num;
       }
       return totalNum;
     },
@@ -32,8 +32,8 @@ export default {
       // 判断是否全选
       let isAllCheck = true;
       for (let i = 0; i < state.shoppingCart.length; i++) {
-        const tmp = state.shoppingCart[i];
-        if (!tmp.check) {
+        const temp = state.shoppingCart[i];
+        if (!temp.check) {
           //只要有一个商品没有勾选立即return false
           isAllCheck = false;
           return isAllCheck;
@@ -46,9 +46,9 @@ export default {
       // 用于确认订单页面
       let checkGoods = [];
       for (let i = 0; i < state.shoppingCart.length; i++) {
-        const tmp = state.shoppingCart[i];
-        if (tmp.check) {
-          checkGoods.push(tmp);
+        const temp = state.shoppingCart[i];
+        if (temp.check) {
+          checkGoods.push(temp);
         }
       }
       return checkGoods;
@@ -57,9 +57,9 @@ export default {
       //获取购物车勾选的商品数量
       let totalNum = 0;
       for (let i = 0; i < state.shoppingCart.length; i++) {
-        const tmp = state.shoppingCart[i];
-        if (tmp.check) {
-          totalNum += tmp.num;
+        const temp = state.shoppingCart[i];
+        if (temp.check) {
+          totalNum += temp.num;
         }
       }
       return totalNum;
@@ -68,9 +68,9 @@ export default {
       // 购物车勾选的商品总价格
       let totalPrice = 0;
       for (let i = 0; i < state.shoppingCart.length; i++) {
-        const tmp = state.shoppingCart[i];
-        if (tmp.check) {
-          totalPrice += tmp.price * tmp.num;
+        const temp = state.shoppingCart[i];
+        if (temp.check) {
+          totalPrice += temp.price * temp.num;
         }
       }
       return totalPrice;
@@ -106,10 +106,10 @@ export default {
       //增加购物车商品数量
       //用于在商品详情页点击添加购物车，后台返回002，”该商品已在购物车，数量+1“，更新vuex的商品数量
       for (let i = 0; i < state.shoppingCart.length; i++) {
-        const tmp = state.shoppingCart[i];
-        if (tmp.productID == productID) {
-          if (tmp.num < tmp.maxNum) {
-            tmp.num++;
+        const temp = state.shoppingCart[i];
+        if (temp.productID == productID) {
+          if (temp.num < temp.maxNum) {
+            temp.num++;
           }
         }
       }
@@ -117,8 +117,8 @@ export default {
     deleteShoppingCart(state, id) {
       //根据购物车id删除购物车商品
       for (let i = 0; i < state.shoppingCart.length; i++) {
-        const tmp = state.shoppingCart[i];
-        if (tmp.id == id) {
+        const temp = state.shoppingCart[i];
+        if (temp.id == id) {
           state.shoppingCart.splice(i, 1);
         }
       }

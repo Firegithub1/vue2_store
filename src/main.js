@@ -3,12 +3,14 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 
+import ElementUI from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
+Vue.use(ElementUI);
+
 //全局函数和变量
 import Global from "./Global";
 Vue.use(Global);
 // import { Button, Row, Input,Col } from "element-ui";
-import ElementUI from "element-ui";
-import "element-ui/lib/theme-chalk/index.css";
 // Vue.use(Input);
 // Vue.use(Col);
 // Vue.use(Button);
@@ -22,22 +24,28 @@ Axios.interceptors.request.use(
   },
   (error) => {
     // 跳转error页面
-    router.push({ path: "/error" });
+    router.push({
+      path: "/error",
+    });
     return Promise.reject(error);
   }
 );
+// 全局响应拦截器
 Axios.interceptors.response.use(
   (res) => {
     if (res.data.code === "401") {
       // 401未登录
       // 提示没有登录
       Vue.prototype.notifyError(res.data.msg);
+      // 修改vuex的showLogin状态,显示登录组件
       store.dispatch("setShowLogin", true);
     }
     if (res.data.code === "500") {
       // 500服务器异常
       // 跳转error页面
-      router.push({ path: "/error" });
+      router.push({
+        path: "/error",
+      });
     }
     return res;
   },
@@ -69,20 +77,21 @@ router.beforeResolve((to, from, next) => {
 
 // 相对时间过滤器，把时间戳转换成时间
 // 格式：2022-08-08 22:22:22
-Vue.filter("dataFormat", (dataStr) => {
-  let time = new Data(dataStr);
+Vue.filter("dateFormat", (dataStr) => {
+  var time = new Date(dataStr);
+
   function timeAdd0(str) {
     if (str < 10) {
       str = "0" + str;
     }
     return str;
   }
-  let y = time.getFullYear();
-  let m = time.getMonth() + 1;
-  let d = time.getDate();
-  let h = time.getHours();
-  let mm = time.getMinutes();
-  let s = time.getSeconds();
+  var y = time.getFullYear();
+  var m = time.getMonth() + 1;
+  var d = time.getDate();
+  var h = time.getHours();
+  var mm = time.getMinutes();
+  var s = time.getSeconds();
   return (
     y +
     "-" +
@@ -99,16 +108,18 @@ Vue.filter("dataFormat", (dataStr) => {
 });
 
 //全局组件
-import MyList from "./components/MyList.vue";
-Vue.component(MyList.name, MyList);
-import MyMenu from "./components/MyMenu.vue";
+
+import MyMenu from "./components/MyMenu";
 Vue.component(MyMenu.name, MyMenu);
-import MyLogin from "./components/MyLogin.vue";
+import MyList from "./components/MyList";
+Vue.component(MyList.name, MyList);
+import MyLogin from "./components/MyLogin";
 Vue.component(MyLogin.name, MyLogin);
-import MyRegister from "./components/MyRegister.vue";
+import MyRegister from "./components/MyRegister";
 Vue.component(MyRegister.name, MyRegister);
 
 Vue.config.productionTip = false;
+
 new Vue({
   router,
   store,
