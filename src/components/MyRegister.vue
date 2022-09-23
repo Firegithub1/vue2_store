@@ -1,270 +1,183 @@
-   <template>
-  <div class="container">
-    <div class="main">
-      <div class="loginbox">
-        <div class="loginbox-in">
-          <div class="userbox">
-            <el-row>
-              <el-input
-                placeholder="请输入姓名"
-                prefix-icon="el-icon-search"
-                v-model="user_list.name"
-              >
-              </el-input>
-            </el-row>
-            <el-row>
-              <el-input
-                :span="12"
-                placeholder="请输入密码"
-                v-model="user_list.pwd"
-                show-password
-              ></el-input>
-            </el-row>
-            <el-row>
-              <el-input
-                type="text"
-                placeholder="请输入密码"
-                v-model="user_list.repwd"
-                maxlength="10"
-                show-word-limit
-              >
-              </el-input>
-            </el-row>
-          </div>
-          <el-row size="medium">
-            <router-link @click="register" to="/register">注册账号</router-link>
-            <el-button span="3" size="mini" type="primary" round
-              >登录</el-button
-            >
-          </el-row>
-        </div>
-        <div class="background">
-          <div class="title">Welcome to ZL System Management Center</div>
-        </div>
-        <router-view></router-view>
-      </div>
-    </div>
+<template>
+  <!-- 用户注册组件 -->
+  <div id="register">
+    <el-dialog title="注册" width="300px" center :visible.sync="isRegister">
+      <el-form
+        :model="RegisterUser"
+        :rules="rules"
+        status-icon
+        ref="ruleForm"
+        class="demo-ruleForm"
+      >
+        <el-form-item prop="name">
+          <el-input
+            prefix-icon="el-icon-user-solid"
+            placeholder="请输入账号"
+            v-model="RegisterUser.name"
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item prop="pass">
+          <el-input
+            prefix-icon="el-icon-view"
+            type="password"
+            placeholder="请输入密码"
+            v-model="RegisterUser.pass"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="confirmPass">
+          <el-input
+            prefix-icon="el-icon-view"
+            type="password"
+            placeholder="请再次输入密码"
+            v-model="RegisterUser.confirmPass"
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            size="medium"
+            type="primary"
+            @click="Register"
+            style="width: 100%"
+          >
+            注册
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Login",
+  name: "MyRegister",
+  props: ["register"],
+
   data() {
+    //用户名的校验方法
+    let validateName = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("请输入用户名"));
+      }
+      //用户名以字母开头，长度在5-16之间，允许字母数字下划线
+      const userNameRule = /^[a-zA-Z][a-zA-Z0-9_]{4,15}$/;
+      if (userNameRule.test(value)) {
+        //判断数据库中是否已经存在该用户名
+        this.$axios
+          .post("/api/users/findUserName", {
+            userName: this.RegisterUser.name,
+          })
+          .then((res) => {
+            //”001“代表用户名不存在，可以注册
+            if (res.data.code == "001") {
+              this.$refs.ruleForm.validateField("checkPass");
+              return callback();
+            } else {
+              return callback(new Error(res.data.msg));
+            }
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      } else {
+        return callback(
+          new Error("字母开头，长度5-16之间，允许字母数字下划线")
+        );
+      }
+    };
+    //密码的校验方法
+    let validatePass = (rule, value, callback) => {
+      if (value === "") {
+        return callback(new Error("请输入密码 "));
+      }
+      //密码以字母开头，长度在6-18之间，允许字母数字下划线
+      const passwordRule = /^[a-zA-Z]\w{5,17}$/;
+      if (passwordRule.test(value)) {
+        this.$refs.ruleForm.validateField("checkPass");
+        return callback();
+      } else {
+        return callback(
+          new Error("字母开头，长度6-18之间，允许字母数字下划线")
+        );
+      }
+    };
+    // 确认密码的校验方式
+    let validateConfirmPass = (rule, value, callback) => {
+      if (value === "") {
+        return callback(new Error("请输入确认密码"));
+      }
+      //校验是否密码一致
+      if (this.RegisterUser.pass != "" && value === this.RegisterUser.pass) {
+        this.$refs.ruleForm.validateField("checkPass");
+        return callback();
+      } else {
+        return callback(new Error("两次输入的密码不一致"));
+      }
+    };
     return {
-      user_list: {
+      isRegister: false, //控制注册组件是否显示
+      RegisterUser: {
         name: "",
-        pwd: "",
-        repwd: "",
+        pass: "",
+        confirmPass: "",
+      },
+      //用户信息校验规则，validator(校验方法)，trigger(触发方式)，blur为在组件Input失去焦点时触发
+      rules: {
+        name: [{ validator: validateName, trigger: "blur" }],
+        pass: [{ validator: validatePass, trigger: "blur" }],
+        confirmPass: [{ validator: validateConfirmPass, trigger: "blur" }],
       },
     };
   },
-  methods: {
-    login() {
-      alert("login");
+  watch: {
+    //监听父组件传过来的register变量，设置this.isRegister的值
+    register: function (val) {
+      if (val) {
+        this.isRegister = val;
+      }
     },
-    register() {
-      alert("11");
+    //监听this.isRegiter变量的值，更新父组件register变量的值
+    isRegister: function (val) {
+      if (!val) {
+        this.$refs["ruleForm"].resetFields();
+        this.$emit("fromChild", val);
+      }
+    },
+  },
+  methods: {
+    Register() {
+      //通过element自定义表单校验规则，校验用户输入的用户信息
+      this.$refs["ruleForm"].validate((valid) => {
+        //如果通过校验，开始注册
+        if (valid) {
+          this.$axios
+            .post("/api/users/register", {
+              userName: this.RegisterUser.name,
+              password: this.RegisterUser.pass,
+            })
+            .then((res) => {
+              //"001"代表注册成功，其它的均为失败
+              if (res.data.code === "001") {
+                //隐藏注册组件
+                this.isRegister = false;
+                //弹出通知框提示注册成功消息
+                this.notifySucceed(res.data.msg);
+              } else {
+                //弹出通知框提示注册失败信息
+                this.notifyError(res.data.msg);
+              }
+            })
+            .catch((err) => {
+              return Promise.reject(err);
+            });
+        } else {
+          return false;
+        }
+      });
     },
   },
 };
 </script>
 
-<style lang='less'>
-.el-row {
-  margin-bottom: 20px;
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-.el-col {
-  border-radius: 4px;
-}
-.bg-purple-dark {
-  background: #99a9bf;
-}
-.bg-purple {
-  background: #d3dce6;
-}
-.bg-purple-light {
-  background: #e5e9f2;
-}
-.grid-content {
-  border-radius: 4px;
-  min-height: 36px;
-}
-.row-bg {
-  padding: 10px 0;
-  background-color: #f9fafc;
-}
-.loginbox {
-  position: absolute;
-  width: 800px;
-  height: 400px;
-  top: 40%;
-  left: 50%;
-  /* transform: translateX(-50%);
-  transform: translateY(-50%); */
-  transform: translate(-50%, -50%);
-  background-color: lavender;
-}
-.loginbox {
-  display: flex;
-  position: absolute;
-  width: 800px;
-  height: 400px;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 #4e655d;
-}
-.loginbox-in {
-  background-color: #89ab9e;
-  width: 240px;
-}
-.userbox {
-  margin-top: 120px;
-  height: 30px;
-  width: 230px;
-  display: flex;
-  margin-left: 25px;
-}
-.pwdbox {
-  height: 30px;
-  width: 225px;
-  display: flex;
-  margin-left: 25px;
-}
-
-.background {
-  width: 570px;
-  background-image: url("https://cdn.homecrux.com/wp-content/uploads/2019/11/tabletop-Christmas-tree_4.jpg");
-  background-size: cover;
-  font-family: sans-serif;
-}
-.title {
-  margin-top: 320px;
-  font-weight: bold;
-  font-size: 20px;
-  color: #4e655d;
-}
-.title:hover {
-  font-size: 21px;
-  transition: all 0.4s ease-in-out;
-  cursor: pointer;
-}
-
-input {
-  outline-style: none;
-  border: 0;
-  border-bottom: 1px solid #e9e9e9;
-  background-color: transparent;
-  height: 20px;
-  font-family: sans-serif;
-  font-size: 15px;
-  color: #445b53;
-  font-weight: bold;
-}
-/* input::-webkit-input-placeholder{
-    color:#E9E9E9;
- } */
-input:focus {
-  border-bottom: 2px solid #445b53;
-  background-color: transparent;
-  transition: all 0.2s ease-in;
-  font-family: sans-serif;
-  font-size: 15px;
-  color: #445b53;
-  font-weight: bold;
-}
-input:hover {
-  border-bottom: 2px solid #445b53;
-  background-color: transparent;
-  transition: all 0.2s ease-in;
-  font-family: sans-serif;
-  font-size: 15px;
-  color: #445b53;
-  font-weight: bold;
-}
-
-input:-webkit-autofill {
-  /* 修改默认背景框的颜色 */
-  box-shadow: 0 0 0px 1000px #89ab9e inset !important;
-  /* 修改默认字体的颜色 */
-  -webkit-text-fill-color: #445b53;
-}
-
-input:-webkit-autofill::first-line {
-  /* 修改默认字体的大小 */
-  font-size: 15px;
-  /* 修改默认字体的样式 */
-  font-weight: bold;
-}
-.log-box {
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  width: 190px;
-  margin-left: 30px;
-  color: #4e655d;
-  margin-top: -5px;
-  align-items: center;
-}
-.log-box-text {
-  color: #4e655d;
-  font-size: 12px;
-  text-decoration: underline;
-}
-.login_btn {
-  background-color: #5f8276; /* Green */
-  border: none;
-  color: #fafafa;
-  padding: 5px 22px;
-  text-align: center;
-  text-decoration: none;
-  font-size: 13px;
-  border-radius: 20px;
-  outline: none;
-}
-.login_btn:hover {
-  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
-    0 17px 50px 0 rgba(0, 0, 0, 0.19);
-  cursor: pointer;
-  background-color: #0b5137;
-  transition: all 0.2s ease-in;
-}
-
-.warn {
-  margin-top: 60px;
-  /* margin-right:120px; */
-  margin-left: -120px;
-  margin-bottom: 5px;
-  font-weight: bold;
-  font-size: 17px;
-}
-
-.register_btn {
-  background-color: transparent; /* Green */
-  border: none;
-  text-decoration: none;
-  font-size: 12px;
-  /* border-radius: 20px;   */
-  color: #4e655d;
-  font-size: 12px;
-  text-decoration: underline;
-  display: flex;
-  justify-content: space-around;
-  outline: none;
-}
-.login:hover {
-  font-weight: bold;
-  cursor: pointer;
-}
-.icon-key:before {
-  content: "\e775";
-}
-
-.icon-account:before {
-  content: "\e817";
-}
+<style>
 </style>

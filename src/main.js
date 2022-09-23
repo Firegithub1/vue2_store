@@ -50,7 +50,9 @@ Axios.interceptors.response.use(
     return res;
   },
   (error) => {
-    router.push({ path: "/error" });
+    router.push({
+      path: "/error",
+    });
     return Promise.reject(error);
   }
 );

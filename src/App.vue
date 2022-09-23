@@ -1,6 +1,6 @@
 <template>
   <div id="app" name="app">
-    <el-comtainer>
+    <el-container>
       <!-- 顶部导航栏 -->
       <div class="topbar">
         <div class="nav">
@@ -9,14 +9,13 @@
               <el-button type="text" @click="login">登录</el-button>
               <span class="sep">|</span>
               <el-button type="text" @click="register = true">注册</el-button>
-            :false,//是否显示注册组件
-            visible:false //是否退出登录</li>
+            </li>
             <li v-else>
               欢迎
               <el-popover placement="top" width="180" v-model="visible">
                 <p>确定退出登录吗？</p>
                 <div style="text-align: right; margin: 10px 0 0">
-                  <el-button size="min" type="text" @click="visible = false"
+                  <el-button size="mini" type="text" @click="visible = false"
                     >取消</el-button
                   >
                   <el-button type="primary" size="mini" @click="logout"
@@ -36,8 +35,8 @@
             </li>
             <li :class="getNum > 0 ? 'shopCart-full' : 'shopCart'">
               <router-link to="/shoppingCart">
-                <i class="el-icon-shopping-cart-full"></i>购物车
-                <span class="num">{{ getNum }}</span>
+                <i class="el-icon-shopping-cart-full"></i> 购物车
+                <span class="num">({{ getNum }})</span>
               </router-link>
             </li>
           </ul>
@@ -54,8 +53,8 @@
         >
           <div class="logo">
             <router-link to="/">
-              <img src="./assets/imgs/logo.png" alt
-            /></router-link>
+              <img src="./assets/imgs/logo.png" alt />
+            </router-link>
           </div>
           <el-menu-item index="/">首页</el-menu-item>
           <el-menu-item index="/goods">全部商品</el-menu-item>
@@ -78,14 +77,11 @@
       <MyLogin></MyLogin>
 
       <!-- 注册模块 -->
-      <MyRegi:false, :register="register" @fromchild="isRegister"></MyRegi:false,//是否显示注册组件
-      visibles:false //是否退出登录:false,//是否显示注册组件
-      visibleter:false //是否退出登录>
-
+      <MyRegister :register="register" @fromChild="isRegister"></MyRegister>
       <!-- 主要区域容器 -->
       <el-main>
         <keep-alive>
-          <router-link></router-link>
+          <router-view></router-view>
         </keep-alive>
       </el-main>
       <!-- 主要区域容器END -->
@@ -96,17 +92,20 @@
           <div class="ng-promise-box">
             <div class="ng-promise">
               <p class="text">
-                <a href="javascript:;" class="icon1">7天无理由退货</a>
-                <a href="javascript:;" class="icon2">满99元全场包邮</a>
-                <a href="javascript:;" class="icon3" style="margin-right: 0">
+                <a class="icon1" href="javascript:;">7天无理由退换货</a>
+                <a class="icon2" href="javascript:;">满99元全场免邮</a>
+                <a class="icon3" style="margin-right: 0" href="javascript:;">
                   100%品质保证</a
                 >
               </p>
             </div>
           </div>
           <div class="github">
-            <a href="https://github.com/Firegithub1/vue2_store.git" target="_blank">
-            <div class="github-but"></div>
+            <a
+              href="https://github.com/Firegithub1/vue2_store.git"
+              target="_blank"
+            >
+              <div class="github-but"></div>
             </a>
           </div>
           <div class="mod_help">
@@ -117,12 +116,12 @@
               <span>|</span>
               <router-link to="/about">关于我们</router-link>
             </p>
-            <p>商城版权所有 &copy;2012-2022</p>
+            <p class="coty">商城版权所有 &copy; 2012-2022</p>
           </div>
         </div>
       </el-footer>
       <!-- 底栏容器END -->
-    </el-comtainer>
+    </el-container>
   </div>
 </template>
 
@@ -158,14 +157,14 @@ export default {
         // 用户没有登录
         this.setShoppingCart([]);
       } else {
-        // 用户已经登录，获取该用户的购物车信息
+        // 用户已经登录,获取该用户的购物车信息
         this.$axios
           .post("/api/user/shoppingCart/getShoppingCart", {
             user_id: val.user_id,
           })
           .then((res) => {
-            if (red.data.code === "001") {
-              // 001为成功，更新vuex购物车状态
+            if (res.data.code === "001") {
+              // 001 为成功, 更新vuex购物车状态
               this.setShoppingCart(res.data.shoppingCartData);
             } else {
               // 提示失败信息
@@ -181,7 +180,7 @@ export default {
   methods: {
     ...mapActions(["setUser", "setShowLogin", "setShoppingCart"]),
     login() {
-      // 点击登录按钮，通过更改vuex的showLogin值显示登录组件
+      // 点击登录按钮, 通过更改vuex的showLogin值显示登录组件
       this.setShowLogin(true);
     },
     // 退出登录
@@ -200,11 +199,12 @@ export default {
     // 点击搜索按钮
     searchClick() {
       if (this.search != "") {
-        // 跳转到全部商品页面，并传递搜索条件
+        // 跳转到全部商品页面,并传递搜索条件
         this.$router.push({
           path: "/goods",
           query: { search: this.search },
         });
+        this.search = "";
       }
     },
   },
@@ -212,7 +212,7 @@ export default {
 </script>
 
 <style>
-/* 全局css */
+/* 全局CSS */
 * {
   padding: 0;
   margin: 0;
@@ -234,6 +234,7 @@ a:hover {
   text-decoration: none;
 }
 /* 全局CSS END */
+
 /* 顶部导航栏CSS */
 .topbar {
   height: 40px;
@@ -264,6 +265,9 @@ a:hover {
 .topbar .nav li .el-button {
   color: #b0b0b0;
 }
+.topbar .nav .el-button:hover {
+  color: #fff;
+}
 .topbar .nav li a {
   color: #b0b0b0;
 }
@@ -288,6 +292,7 @@ a:hover {
   color: white;
 }
 /* 顶部导航栏CSS END */
+
 /* 顶栏容器CSS */
 .el-header .el-menu {
   max-width: 1225px;
@@ -304,7 +309,8 @@ a:hover {
   width: 300px;
   float: right;
 }
-/* 顶部容器CSS END */
+/* 顶栏容器CSS END */
+
 /* 底栏容器CSS */
 .footer {
   width: 100%;
@@ -346,6 +352,7 @@ a:hover {
 .footer .mod_help p {
   margin: 20px 0 16px 0;
 }
+
 .footer .mod_help p a {
   color: #888888;
   text-decoration: none;
@@ -356,5 +363,5 @@ a:hover {
 .footer .mod_help p span {
   padding: 0 22px;
 }
-/* 底部容器CSS END */
+/* 底栏容器CSS END */
 </style>

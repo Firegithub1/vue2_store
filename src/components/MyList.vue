@@ -46,14 +46,37 @@
               categoryID: categoryID,
             },
           }"
-        >浏览更多</router-link>
+          >浏览更多</router-link
+        >
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  name: "MyList",
+  // list为父组件传过来的商品列表
+  // isMore为是否显示浏览更多
+  props: ["list", "isMore", "isDelete"],
+  data() {
+    return {};
+  },
+  computed: {
+    //通过list获取当前显示的商品的分类ID,用于"浏览更多"链接的参数
+    categoryID: function () {
+      let categoryID = [];
+      if (this.list != "") {
+        for (let i = 0; i < this.list.length; i++) {
+          const id = this.list[i].category_id;
+          if (!categoryID.includes(id)) {
+            categoryID.push(id);
+          }
+        }
+      }
+    },
+  },
+};
 </script>
 
 <style>
