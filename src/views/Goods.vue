@@ -197,6 +197,7 @@ export default {
           pageSize: this.pageSize,
         })
         .then((res) => {
+          console.table(res)
           this.product = res.data.Product;
           this.total = res.data.total;
         })
@@ -213,6 +214,7 @@ export default {
           pageSize: this.pageSize,
         })
         .then((res) => {
+          console.log("@@@@", res);
           this.product = res.data.Product;
           this.total = res.data.total;
         })
