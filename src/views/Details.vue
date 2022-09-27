@@ -169,11 +169,13 @@ export default {
             case "001":
               // 新加入购物车成功
               this.unshiftShoppingCart(res.data.shoppingCartData[0]);
+              console.log("unshift001", res.data.shoppingCartData[0]);
               this.notifySucceed(res.data.msg);
               break;
             case "002":
               // 该商品已经在购物车，数量+1
               this.addShoppingCartNum(this.productID);
+              console.log("002", this.productID);
               this.notifySucceed(res.data.msg);
               break;
             case "003":

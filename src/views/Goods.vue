@@ -41,8 +41,9 @@
       <div class="pagination">
         <el-pagination
           background
-          layout="prev, pager, next"
-          :page-size="pageSize"
+          @size-change="handleSizeChange"
+          layout="sizes,prev, pager, next,total"
+          :page-sizes="[5, 10, 15, 20]"
           :total="total"
           @current-change="currentChange"
         ></el-pagination>
@@ -62,7 +63,7 @@ export default {
       product: "", //商品
       productList: "", //商品列表
       total: 0, //商品总量
-      pageSize: 15, //每页显示的商品数量
+      pageSize: 10, //每页显示的商品数量
       currentPage: 1, //当前页码
       activeName: "-1", //分类列表当前选中的id
       search: "", //搜索条件
@@ -85,9 +86,11 @@ export default {
     }
     //如果路由传递了categoryID,则显示对应的分类商品
     if (this.$route.query.categoryID != undefined) {
+      // console.log("routeeeeeee",this.$route);
       this.categoryID = this.$route.query.categoryID;
       if (this.categoryID.length == 1) {
         this.activeName = "" + this.categoryID[0];
+        // alert(this.activeName);
       }
       return;
     }
@@ -155,6 +158,16 @@ export default {
         }
       }, 20);
     },
+    handleSizeChange(pageSize) {
+      this.pageSize = pageSize;
+      // console.log(pageSize);
+      if (this.search != "") {
+        this.getProductBySearch();
+      } else {
+        this.getData();
+      }
+      this.backtop();
+    },
     // TODO:
     //页码变化调用 currentChange 方法
     currentChange(currentPage) {
@@ -178,6 +191,7 @@ export default {
           const cate = res.data.category;
           cate.unshift(val);
           this.categoryList = cate;
+          // console.log("categoryListtttt", cate);
         })
         .catch((err) => {
           return Promise.reject(err);
@@ -197,7 +211,7 @@ export default {
           pageSize: this.pageSize,
         })
         .then((res) => {
-          console.table(res)
+          console.table(res);
           this.product = res.data.Product;
           this.total = res.data.total;
         })
